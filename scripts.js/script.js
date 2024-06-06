@@ -27,7 +27,7 @@ async function main() {
     console.log(await client.getBalance(address, "orai"))
 
     // địa chỉ ví contract sau khi đã deploy
-    // const contract_address = process.env.CONTRACT_ADDRESS
+    const contract_address = process.env.CONTRACT_ADDRESS
 
     const fee = "auto"
     //=====================================DEPLOY========================================
@@ -40,21 +40,27 @@ async function main() {
     const upload = await client.upload(address, wasmCode, fee)
     console.log(upload)
 
-    //instantiate msg
-    const instantiate_msg = {
-        owner: address
-    }
-    const res = await client.instantiate(address, upload.codeId, instantiate_msg, "cosmwasm-base", fee)
-    console.log(res)
+    // //instantiate msg
+    // const instantiate_msg = {
+    //     owner: address,
+    //     apr : "50",
+    //     token_stake : "orai1w7xwdj8chhjy5nalqcy52yv5f2qnek2a7eugdtuqzfanmu5nn8vqnvawap",
+    // };
+    // const res = await client.instantiate(address, upload.codeId, instantiate_msg, "cosmwasm-base", fee)
+    // console.log(res)
 
     //===================================================================================
 
 
     //=====================================EXECUTE=======================================
-
-    // const execute_example = await client.execute(
-    //     address, contract_address, { example: { a: 5, b: 6 } }, fee)
-    // console.log(execute_example)
+    //approve
+    const execute_msg = {
+        stake : {amount : "0"}
+        // unstake : {}
+        //with_draw : {amount : "1"}
+    } 
+    const execute_example = await client.execute(address, contract_address, execute_msg,fee);
+    console.log(execute_example)
 
     //===================================================================================
 

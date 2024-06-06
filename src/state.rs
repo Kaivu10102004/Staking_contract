@@ -1,18 +1,25 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Uint128};
-use cw_storage_plus::Item;
+use cw_storage_plus::{Item,Map};
 
-pub const CONFIG: Item<Config> = Item::new("config");
-pub const APR: Item<u64> = Item::new("apr");
-pub const TOKEN_STAKE: Item<u64> = Item::new("token_stake");
-pub const TOKEN : Item<Addr> = Item::new("token");
 #[cw_serde]
 pub struct Config {
     pub owner: Addr,
+    pub apr : Uint128,
+    pub token_stake : Addr,
 }
+#[cw_serde]
 pub struct StakeQueue{
-    pub sender : String,
-    pub time : String,
-    pub amount : u64,
-    pub token_address : String,
+    pub sender : Addr,
+    pub amount : Uint128,
 }
+#[cw_serde]
+pub struct StakerInfo{
+    //pub staker: Addr,
+    pub stake_amount : Uint128,
+    pub reward_amount : Uint128,
+    pub last_update_time : Uint128,
+}
+
+pub const CONFIG: Item<Config> = Item::new("config");
+pub const STAKE_QUEUE: Map<&Addr,StakerInfo> = Map::new("stake_queue");

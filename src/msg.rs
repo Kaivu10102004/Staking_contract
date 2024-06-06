@@ -4,19 +4,32 @@ use cosmwasm_std::{Addr, Uint128};
 #[cw_serde]
 pub struct InstantiateMsg {
     pub owner: Addr,
+    pub apr : Uint128,
+    pub token_stake : Addr,
 }
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    SetToken {token_address: Addr},
-    SetAPR {amount : Uint128},
-    Stake{amount : Uint128},
-    WithDraw{amount : Uint128},
+    Stake{amount : Uint128,},
+    UnStake{},
+    WithDraw{amount : Uint128,},
 }
 
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
-    #[returns(u64)]
-    Example {},
+    #[returns(Uint128)]
+    GetStakeamount {staker : Addr,},
+    #[returns(Uint128)]
+    GetRewardamount{staker : Addr,},
+}
+
+#[cw_serde]
+pub struct GetStakeamountResponses{
+    pub amount : Uint128,
+}
+
+#[cw_serde]
+pub struct GetRewardamountResponses{
+    pub amount : Uint128,
 }
