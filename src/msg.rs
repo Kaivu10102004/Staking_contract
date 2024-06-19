@@ -13,6 +13,7 @@ pub enum ExecuteMsg {
     Stake{amount : Uint128,},
     UnStake{},
     WithDraw{amount : Uint128,},
+    
 }
 
 #[cw_serde]
