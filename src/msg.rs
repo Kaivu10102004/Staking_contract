@@ -1,6 +1,6 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Uint128};
-
+use cw20::Cw20ReceiveMsg;
 #[cw_serde]
 pub struct InstantiateMsg {
     pub owner: Addr,
@@ -10,10 +10,16 @@ pub struct InstantiateMsg {
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    Stake{amount : Uint128,},
+    Receive(Cw20ReceiveMsg),
+    //Stake{amount : Uint128,},
     UnStake{},
     WithDraw{amount : Uint128,},
     
+}
+
+#[cw_serde]
+pub enum Cw20HookMsg {
+    Stake {},
 }
 
 #[cw_serde]

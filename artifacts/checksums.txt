@@ -1,1 +1,1 @@
-c78adc69d5ac1b02c58dd3d73d118ab1b9a67f0d0be68b8a0de3bdb1cfe92267  project_name.wasm
+eb2f8bc4963394355c1f8189c268aa6676307d7ba8c455573dc38514cd063653  project_name.wasm

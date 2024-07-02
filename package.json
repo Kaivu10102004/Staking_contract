@@ -1,6 +1,10 @@
 {
   "type": "module",
   "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.32.4",
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
     "cosmwasm": "^1.1.1",
     "dotenv": "^16.4.5"
   },

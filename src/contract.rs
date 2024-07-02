@@ -1,11 +1,11 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_json_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128, WasmMsg
+    from_json,to_json_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128, WasmMsg
 };
-use cw20::{self, Cw20ExecuteMsg};
+use cw20::{self, Cw20ExecuteMsg,Cw20ReceiveMsg};
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, GetStakeamountResponses, GetRewardamountResponses};
+use crate::msg::{Cw20HookMsg,ExecuteMsg, InstantiateMsg, QueryMsg, GetStakeamountResponses, GetRewardamountResponses};
 use crate::state::{Config, CONFIG, StakerInfo, STAKE_QUEUE};
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -28,58 +28,106 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::Stake{amount} => execute_stake(deps, env, info, amount),
+        ExecuteMsg::Receive(msg) => receive_cw20(deps, env, info, msg),
+        //ExecuteMsg::Stake{amount} => execute_stake(deps, env, info, amount),
         ExecuteMsg::UnStake{} => execute_unstake(deps, env, info),
         ExecuteMsg::WithDraw{amount} => execute_withdraw(deps, env, info, amount),
     }
 }
 
-//#[cfg_attr(not(feature = "library"), entry_point)]
-pub fn execute_stake(
+pub fn receive_cw20(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
-    amount: Uint128,
+    cw20_msg: Cw20ReceiveMsg,
 ) -> Result<Response, ContractError> {
-    // get config 
-    let config = CONFIG.load(deps.storage)?;
-    let mut stake_amount_now : Uint128 = amount.clone();
-    let mut reward_amount_now : Uint128 = Uint128::new(0);
-    let now = Uint128 :: new(env.block.time.seconds() as u128);
-    //STAKE_QUEUE.load(deps.storage, &staker)?
-    match STAKE_QUEUE.may_load(deps.storage, &info.sender.clone())? {
-        Some(value) => {
-            reward_amount_now = reward_amount_now.clone() + value.reward_amount.clone() + value.stake_amount.clone() * (now.clone() - value.last_update_time.clone()) * config.apr.clone() / Uint128::new(100) / Uint128::new(31536000);
-            stake_amount_now = value.stake_amount.clone() + stake_amount_now.clone();
-        },
-        None => {}
-        ,
+    match from_json(&cw20_msg.msg)?{
+        Cw20HookMsg::Stake {} => {
+            let config = CONFIG.load(deps.storage)?;
+            let mut stake_amount_now : Uint128 = cw20_msg.amount.clone();
+            let mut reward_amount_now : Uint128 = Uint128::new(0);
+            let now = Uint128 :: new(env.block.time.seconds() as u128);
+            //STAKE_QUEUE.load(deps.storage, &staker)?
+            match STAKE_QUEUE.may_load(deps.storage, &info.sender.clone())? {
+                Some(value) => {
+                    reward_amount_now = reward_amount_now.clone() + value.reward_amount.clone() + value.stake_amount.clone() * (now.clone() - value.last_update_time.clone()) * config.apr.clone() / Uint128::new(100) / Uint128::new(31536000);
+                    stake_amount_now = value.stake_amount.clone() + stake_amount_now.clone();
+                },
+                None => {}
+                ,
+            }
+            STAKE_QUEUE.save(
+                deps.storage,
+                &info.sender.clone(), 
+                &StakerInfo{
+                stake_amount : stake_amount_now.clone(),
+                reward_amount: reward_amount_now.clone(),
+                last_update_time : now.clone(),
+                },
+            )?;
+            return Ok(Response::default())
+        }
     }
-    //approve
-    //tran
-    let transfer_msg = WasmMsg::Execute {
-        contract_addr: config.token_stake.clone().to_string(),
-        msg: to_json_binary(&Cw20ExecuteMsg::TransferFrom {
-            owner: info.sender.clone().to_string(),
-            recipient: env.contract.address.to_string(),
-            amount : amount.clone(),
-        })?,
-        funds: vec![],
-    };
-
-    // save tran to stake_queue
-    STAKE_QUEUE.save(
-        deps.storage,
-        &info.sender.clone(), 
-        &StakerInfo{
-        stake_amount : stake_amount_now.clone(),
-        reward_amount: reward_amount_now.clone(),
-        last_update_time : now.clone(),
-        },
-    )?;
     //return Ok(Response::default())
-    return Ok(Response::default().add_message(transfer_msg))
 }
+
+//#[cfg_attr(not(feature = "library"), entry_point)]
+// pub fn execute_stake(
+//     deps: DepsMut,
+//     env: Env,
+//     info: MessageInfo,
+//     amount: Uint128,
+// ) -> Result<Response, ContractError> {
+//     // get config 
+//     let config = CONFIG.load(deps.storage)?;
+//     let mut stake_amount_now : Uint128 = amount.clone();
+//     let mut reward_amount_now : Uint128 = Uint128::new(0);
+//     let now = Uint128 :: new(env.block.time.seconds() as u128);
+//     //STAKE_QUEUE.load(deps.storage, &staker)?
+//     match STAKE_QUEUE.may_load(deps.storage, &info.sender.clone())? {
+//         Some(value) => {
+//             reward_amount_now = reward_amount_now.clone() + value.reward_amount.clone() + value.stake_amount.clone() * (now.clone() - value.last_update_time.clone()) * config.apr.clone() / Uint128::new(100) / Uint128::new(31536000);
+//             stake_amount_now = value.stake_amount.clone() + stake_amount_now.clone();
+//         },
+//         None => {}
+//         ,
+//     }
+//     //approve
+//     //tran
+//     // let send_msg = Cw20ExecuteMsg::Send {
+//     //     contract: env.contract.address.to_string(),
+//     //     amount: amount.clone(),
+//     //     msg: to_json_binary(&ExecuteMsg::Stake { amount : amount.clone() }).unwrap(),
+//     // };
+
+//     // let transfer_msg = WasmMsg::Execute {
+//     //     contract_addr: config.token_stake.clone().to_string(),
+//     //     msg: to_json_binary(&send_msg).unwrap(),
+//     //     funds: vec![],
+//     // };
+
+//     let transfer_msg = WasmMsg::Execute {
+//         contract_addr: config.token_stake.clone().to_string(),
+//         msg: to_json_binary(&Cw20ExecuteMsg::Send {
+//             contract: env.contract.address.to_string(),
+//             amount: amount.clone(),
+//             msg: to_json_binary(&"")?,
+//         })?,
+//         funds: vec![],
+//     };
+//     // save tran to stake_queue
+//     STAKE_QUEUE.save(
+//         deps.storage,
+//         &info.sender.clone(), 
+//         &StakerInfo{
+//         stake_amount : stake_amount_now.clone(),
+//         reward_amount: reward_amount_now.clone(),
+//         last_update_time : now.clone(),
+//         },
+//     )?;
+//     //return Ok(Response::default())
+//     return Ok(Response::default().add_message(transfer_msg))
+// }
 
 //#[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute_unstake(
