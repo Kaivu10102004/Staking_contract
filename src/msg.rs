@@ -12,8 +12,8 @@ pub struct InstantiateMsg {
 pub enum ExecuteMsg {
     Receive(Cw20ReceiveMsg),
     //Stake{amount : Uint128,},
-    UnStake{},
-    WithDraw{amount : Uint128,},
+    UnStake{amount : Uint128,},
+    WithDraw{},
     
 }
 

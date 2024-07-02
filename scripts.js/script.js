@@ -54,50 +54,31 @@ async function main() {
 
 
     //=====================================EXECUTE=======================================
-    //approve
-    // stake 
-    // const stake_msg = {
-    //     stake
-    // } 
-    //  const execute_msg = {
-    //     Receive : {stake_msg}
-    //     //un_stake : {}
-    //    // with_draw : {amount : "3000"}
-    // } 
-    // const execute_example = await client.execute(address, contract_address, execute_msg,fee);
-    // console.log(execute_example)
 
     // //===================================================================================
 
     // //======================================QUERY========================================
-    // const query_msg = {
-    //     //get_stakeamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
-    //     get_rewardamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
-    // } 
-    // const query_example = await client.queryContractSmart(contract_address,query_msg)
-    // console.log(query_example)
-    //  const execute_msg = {
-    //     Receive : {
-    //         msg : {
-    //             sender : address,
-    //             amount : "100",
-    //             msg : 
-    //         }
-    //     }
-    //     //stake : {amount : "1000000000"}
-    //     //un_stake : {}
-    //     //with_draw : {amount : "2116666666"}
-    // } 
-    // const execute_example = await client.execute(address, contract_address, execute_msg,fee);
-    // console.log(execute_example)
+    const query_msg = {
+        //get_stakeamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
+        get_rewardamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
+    } 
+    const query_example = await client.queryContractSmart(contract_address,query_msg)
+    console.log(query_example)
+    
+    const execute_msg = {
+        //Receive : {stake_msg}
+        //un_stake : {amount : "10"}
+        with_draw : {}
+    } 
+    const execute_example = await client.execute(address, contract_address, execute_msg,fee);
+    console.log(execute_example)
 
-
-    // const query_msg1= {
-    //     //get_stakeamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
-    //     get_rewardamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
-    // } 
-    // const query_example1 = await client.queryContractSmart(contract_address,query_msg1)
-    // console.log(query_example1)
+    const query_msg1= {
+        //get_stakeamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
+       get_rewardamount :{staker : "orai15d8rnqeywwy6c0vkj3fyd8lw6tudfrzgkh2yrx"}
+    } 
+    const query_example1 = await client.queryContractSmart(contract_address,query_msg1)
+    console.log(query_example1)
     //===================================================================================
 }
 
